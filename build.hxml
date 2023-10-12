@@ -1,0 +1,7 @@
+-cp src
+-lib heaps
+-lib openfl
+-D resourcesPath=Assets
+-js ../test__/Export/html5/bin/nes.js
+-main Main
+-debug

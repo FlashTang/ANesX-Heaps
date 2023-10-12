@@ -1,0 +1,8 @@
+-cp src
+-lib heaps
+-lib openfl
+-lib hlsdl
+-D resourcesPath=Assets
+-hl ./bin/nes.hl
+-main Main
+-debug
