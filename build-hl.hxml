@@ -5,4 +5,4 @@
 -D resourcesPath=Assets
 -hl ./bin/nes.hl
 -main Main
--debug
+#-debug
