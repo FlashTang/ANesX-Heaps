@@ -13,11 +13,11 @@ class Main extends hxd.App {
         tf.text = "Hello World !";
 
         
-		var bmd:BitmapData = new BitmapData(256,240);
+		// var bmd:BitmapData = new BitmapData(256,240);
       
-        var tile:Tile = Tile.fromBitmap(bmd);
+        // var tile:Tile = Tile.fromBitmap(bmd);
         
-        var bm:Bitmap = new Bitmap(tile);
+        var bm:Bitmap = new Bitmap();
         bm.scale(2);
         s2d.addChild(bm);
         var vm:VM = new VM();
