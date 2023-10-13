@@ -236,8 +236,7 @@ class VM {
 		//TV?.unlock();
 		
 		//TV.setPixels();//.setVector(TV.bitmapData.rect, bus.ppu.vtIMG);
-		var bmd:BitmapData = new BitmapData(256,240);
-		bmd.unlock();
+		
 		// for(i in 0...bus.ppu.vtIMG.length){
 		// 	var pix = bus.ppu.vtIMG[i];
 		// 	var y:Int = Std.int(i  / 256);
@@ -274,11 +273,12 @@ class VM {
 
 	 
 		var pixs = new Pixels(256,240,newPixels,hxd.PixelFormat.ARGB);
-		bmd.setPixels(pixs);
-
-
-		bmd.lock();
-		TV.tile = Tile.fromBitmap(bmd);
+		// var bmd:BitmapData = new BitmapData(256,240);
+		// bmd.unlock();
+		// bmd.setPixels(pixs);
+		// bmd.lock();
+		//TV.tile = Tile.fromBitmap(bmd);
+		TV.tile.getTexture().uploadPixels(pixs);
 
 		// for(x in 0...256){
 		// 	for(y in 0...240){
@@ -347,12 +347,14 @@ class VM {
 				if(fc_ft > vm_ft){
 					thread.stop();
 					Timer.delay(()->{
-						thread = new Timer(100);
-						thread.run = run;
+						//thread = new Timer(100);
+						//thread.run = run;
+						run();
 					},fc_ft - vm_ft);
 				}
 				else{
-
+					thread.stop();
+					run();
 				}
 				// count FPS(计算FPS) - FC的CPU主频为1789772Hz/1秒
 				if (bus.ppu.nFrameCount % fc_fps == 0) {

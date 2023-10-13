@@ -1,3 +1,5 @@
+import haxe.Timer;
+import hxd.Event;
 import hxd.res.Loader;
 import hxd.res.Resource;
 import openfl.utils.ByteArray;
@@ -7,6 +9,7 @@ import h3d.mat.Texture;
 import h2d.Tile;
 import hxd.BitmapData;
 import h2d.Bitmap;
+
 
 class Main extends hxd.App {
 	override function init() {
@@ -18,7 +21,7 @@ class Main extends hxd.App {
 
 		// var tile:Tile = Tile.fromBitmap(bmd);
 
-		var bm:Bitmap = new Bitmap();
+		var bm:Bitmap = new Bitmap(Tile.fromBitmap(new BitmapData(256,240)));
 		bm.scale(2);
 		s2d.addChild(bm);
 		var vm:VM = new VM();
@@ -50,7 +53,83 @@ class Main extends hxd.App {
 			vm.insertCartridge(rom);
 		}
 
+		hxd.Window.getInstance().addEventTarget(onEvent);
+		var timer = new Timer(100);
+		timer.run = function(){
+			var pulse:UInt = jp1_a | jp1_b << 1 | jp1_se << 2 | jp1_st << 3 | jp1_u << 4 | jp1_d << 5 | jp1_l << 6 | jp1_r << 7;
+			vm.touchJoypad(pulse,0);
+		}
+	
 	}
+
+	var jp1_r:Int = 0;
+	var jp1_l:Int = 0;
+	var jp1_u:Int = 0;
+	var jp1_d:Int = 0;
+	var jp1_se:Int = 0;
+	var jp1_st:Int = 0;
+	var jp1_b:Int = 0;
+	var jp1_a:Int = 0;
+
+	function onEvent(e : Event) {
+		switch(e.kind) {
+			case EKeyDown: 
+				if(e.keyCode == 68){
+					jp1_r = 1;
+				}
+				else if(e.keyCode == 65){
+					jp1_l = 1;
+				}
+				else if(e.keyCode == 87){
+					jp1_u = 1;
+				}
+				else if(e.keyCode == 83){
+					jp1_d = 1;
+				}
+				else if(e.keyCode == 70){
+					jp1_se = 1;
+				}
+				else if(e.keyCode == 72){
+					jp1_st = 1;
+				}
+				else if(e.keyCode == 74){
+					jp1_b = 1;
+				}
+				else if(e.keyCode == 75){
+					jp1_a = 1;
+				}
+				trace('DOWN keyCode: ${e.keyCode}, charCode: ${e.charCode}');
+			case EKeyUp: 
+				if(e.keyCode == 68){
+					jp1_r = 0;
+				}
+				else if(e.keyCode == 65){
+					jp1_l = 0;
+				}
+				else if(e.keyCode == 87){
+					jp1_u = 0;
+				}
+				else if(e.keyCode == 83){
+					jp1_d = 0;
+				}
+				else if(e.keyCode == 70){
+					jp1_se = 0;
+				}
+				else if(e.keyCode == 72){
+					jp1_st = 0;
+				}
+				else if(e.keyCode == 74){
+					jp1_b = 0;
+				}
+				else if(e.keyCode == 75){
+					jp1_a = 0;
+				}
+				trace('UP keyCode: ${e.keyCode}, charCode: ${e.charCode}');
+			case _:
+		}
+	}
+	
+
 
 	static function main() {
 		new Main();

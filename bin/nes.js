@@ -2248,6 +2248,14 @@ hxd_App.prototype = {
 	,__class__: hxd_App
 };
 var Main = function() {
+	this.jp1_a = 0;
+	this.jp1_b = 0;
+	this.jp1_st = 0;
+	this.jp1_se = 0;
+	this.jp1_d = 0;
+	this.jp1_u = 0;
+	this.jp1_l = 0;
+	this.jp1_r = 0;
 	hxd_App.call(this);
 };
 $hxClasses["Main"] = Main;
@@ -2258,10 +2266,11 @@ Main.main = function() {
 Main.__super__ = hxd_App;
 Main.prototype = $extend(hxd_App.prototype,{
 	init: function() {
+		var _gthis = this;
 		var tf = new h2d_Text(hxd_res_DefaultFont.get(),this.s2d);
 		tf.set_text("Hello World !");
 		hxd_Res.set_loader(new hxd_res_Loader(new hxd_fs_EmbedFileSystem(haxe_Unserializer.run("oy9:.DS_Storetg"))));
-		var bm = new h2d_Bitmap();
+		var bm = new h2d_Bitmap(h2d_Tile.fromBitmap(new hxd_BitmapData(256,240)));
 		bm.posChanged = true;
 		bm.scaleX *= 2;
 		bm.posChanged = true;
@@ -2283,11 +2292,11 @@ Main.prototype = $extend(hxd_App.prototype,{
 					str += "" + data.b[i] + ",";
 				}
 				str += "];";
-				haxe_Log.trace(str,{ fileName : "src/Main.hx", lineNumber : 38, className : "Main", methodName : "init"});
+				haxe_Log.trace(str,{ fileName : "src/Main.hx", lineNumber : 41, className : "Main", methodName : "init"});
 				vm.insertCartridge(data);
 			};
 			loader.onError = function(e) {
-				haxe_Log.trace(e,{ fileName : "src/Main.hx", lineNumber : 42, className : "Main", methodName : "init"});
+				haxe_Log.trace(e,{ fileName : "src/Main.hx", lineNumber : 45, className : "Main", methodName : "init"});
 			};
 			loader.load();
 		} else {
@@ -2301,6 +2310,65 @@ Main.prototype = $extend(hxd_App.prototype,{
 				rom.b[i] = value;
 			}
 			vm.insertCartridge(rom);
+		}
+		hxd_Window.getInstance().addEventTarget($bind(this,this.onEvent));
+		var timer = new haxe_Timer(100);
+		timer.run = function() {
+			var pulse = _gthis.jp1_a | _gthis.jp1_b << 1 | _gthis.jp1_se << 2 | _gthis.jp1_st << 3 | _gthis.jp1_u << 4 | _gthis.jp1_d << 5 | _gthis.jp1_l << 6 | _gthis.jp1_r << 7;
+			vm.touchJoypad(pulse,0);
+		};
+	}
+	,jp1_r: null
+	,jp1_l: null
+	,jp1_u: null
+	,jp1_d: null
+	,jp1_se: null
+	,jp1_st: null
+	,jp1_b: null
+	,jp1_a: null
+	,onEvent: function(e) {
+		switch(e.kind._hx_index) {
+		case 8:
+			if(e.keyCode == 68) {
+				this.jp1_r = 1;
+			} else if(e.keyCode == 65) {
+				this.jp1_l = 1;
+			} else if(e.keyCode == 87) {
+				this.jp1_u = 1;
+			} else if(e.keyCode == 83) {
+				this.jp1_d = 1;
+			} else if(e.keyCode == 70) {
+				this.jp1_se = 1;
+			} else if(e.keyCode == 72) {
+				this.jp1_st = 1;
+			} else if(e.keyCode == 74) {
+				this.jp1_b = 1;
+			} else if(e.keyCode == 75) {
+				this.jp1_a = 1;
+			}
+			haxe_Log.trace("DOWN keyCode: " + e.keyCode + ", charCode: " + e.charCode,{ fileName : "src/Main.hx", lineNumber : 101, className : "Main", methodName : "onEvent"});
+			break;
+		case 9:
+			if(e.keyCode == 68) {
+				this.jp1_r = 0;
+			} else if(e.keyCode == 65) {
+				this.jp1_l = 0;
+			} else if(e.keyCode == 87) {
+				this.jp1_u = 0;
+			} else if(e.keyCode == 83) {
+				this.jp1_d = 0;
+			} else if(e.keyCode == 70) {
+				this.jp1_se = 0;
+			} else if(e.keyCode == 72) {
+				this.jp1_st = 0;
+			} else if(e.keyCode == 74) {
+				this.jp1_b = 0;
+			} else if(e.keyCode == 75) {
+				this.jp1_a = 0;
+			}
+			haxe_Log.trace("UP keyCode: " + e.keyCode + ", charCode: " + e.charCode,{ fileName : "src/Main.hx", lineNumber : 127, className : "Main", methodName : "onEvent"});
+			break;
+		default:
 		}
 	}
 	,__class__: Main
@@ -3831,8 +3899,6 @@ VM.prototype = {
 	,run: function() {
 		var _gthis = this;
 		var vm_ft = new Date().getTime() | 0;
-		var bmd = new hxd_BitmapData(256,240);
-		bmd.unlock();
 		var newPixels = new haxe_io_Bytes(new ArrayBuffer(this.bus.ppu.vtIMG.length * 4));
 		var j = 0;
 		var _g = 0;
@@ -3854,9 +3920,7 @@ VM.prototype = {
 			}
 		}
 		var pixs = new hxd_Pixels(256,240,newPixels,hxd_PixelFormat.ARGB);
-		bmd.setPixels(pixs);
-		bmd.lock();
-		this.TV.set_tile(h2d_Tile.fromBitmap(bmd));
+		this.TV.tile.innerTex.uploadPixels(pixs);
 		var bankCC = 0;
 		while(true) {
 			bankCC = 85;
@@ -3882,9 +3946,11 @@ VM.prototype = {
 				if(this.fc_ft > vm_ft) {
 					this.thread.stop();
 					haxe_Timer.delay(function() {
-						_gthis.thread = new haxe_Timer(100);
-						_gthis.thread.run = $bind(_gthis,_gthis.run);
+						_gthis.run();
 					},this.fc_ft - vm_ft);
+				} else {
+					this.thread.stop();
+					this.run();
 				}
 				if(this.bus.ppu.nFrameCount % this.fc_fps == 0) {
 					this.runSecond += 1;
